@@ -1,0 +1,11 @@
+{
+  "language": "nn",
+  "place": "stad",
+  "forecast": "varsel",
+  "forecast_hour_by_hour": "varsel_time_for_time",
+  "credit":
+  {
+    "text": "Vêrvarsel frå yr.no, levert av Meteorologisk institutt og NRK",
+    "url": "http://www.yr.no/"
+  }
+}
