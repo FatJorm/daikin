@@ -112,7 +112,12 @@ class Daikin_Controller(object):
         self.save_obj(frame,PANDA_FRAME)
 
     def get_kitchen_temp(self):
-        sector = Session(mail, passw, number)
+        with open('/home/pi/Python/passwd/sector.pickle', 'rb') as f:
+            s = pickle.load(f)
+        mail = s['user']
+        passwd = s['passwd']
+        number = s['nr']
+        sector = Session(mail, passwd, number)
         device_list = sector.get_temperature()['temperatureComponentList']
         firealarm_kitchen = device_list[0]
         firealarm_upstairs = device_list[1]
