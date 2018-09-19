@@ -12,6 +12,7 @@ import pickle
 from collections import deque
 from math import floor
 import pandas as pd
+from sys import platform
 
 os.chdir(sys.path[0])
 
@@ -57,7 +58,7 @@ class Daikin_Controller(object):
         
     def update_panda_frame(self):
         panda = self.load_obj(self.panda_pickel_file)
-        time_stamp = datetime.datetime.strftime(datetimme.datetime.nowi())
+        time_stamp = dt.datetime.strftime(dt.datetime.nowi())
 
     def get_yr_weather_l(self):
         weather = Yr(location_name='Sverige/Västra_Götaland/Lerum', forecast_link='forecast_hour_by_hour')
@@ -112,7 +113,12 @@ class Daikin_Controller(object):
         self.save_obj(frame,PANDA_FRAME)
 
     def get_kitchen_temp(self):
-        with open('/home/pi/Python/passwd/sector.pickle', 'rb') as f:
+        if platform == 'linux':
+            file = 'home/pi/Python/passwd/sector.pickle'
+        else:
+            file = r'C:\Users\Johan\Documents\Programming\Python\passwords\sector.pickle'
+
+        with open(file, 'rb') as f:
             s = pickle.load(f)
         mail = s['user']
         passwd = s['passwd']
