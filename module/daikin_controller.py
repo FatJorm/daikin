@@ -118,7 +118,7 @@ class Daikin_Controller(object):
 
     def login_sector(self, user, passwd):
         if platform == 'linux':
-            driver = webdriver.Chrome('linux/chromedriver')
+            driver = webdriver.Chrome('')
         else:
             driver = webdriver.Chrome('win32/chromedriver')
 
@@ -174,9 +174,11 @@ class Daikin_Controller(object):
         passwd = s['passwd']
         
         #temp = self.login_sector(mail,passwd)
-
+        #if temp:
+        #    return temp
+        #else:
+        #    return 22
         return 22
-
 
     def get_target_temp(self):
         outdoor_temp = self.yr_future_low_temp
