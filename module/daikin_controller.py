@@ -6,13 +6,18 @@ import time
 import json
 from datetime import datetime as dt
 from module.daikin_aircon import *
-from yr.libyr import Yr
+from module.yr.libyr import Yr
 from module.python_sectoralarm_master.sectoralarm.session import Session
 import pickle
 from collections import deque
 from math import floor
 import pandas as pd
 from sys import platform
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 os.chdir(sys.path[0])
 
@@ -112,6 +117,48 @@ class Daikin_Controller(object):
     def save_panda_to_pickel(self, frame):
         self.save_obj(frame,PANDA_FRAME)
 
+    def login_sector(self, user, passwd):
+        driver = webdriver.Chrome('chromedriver')
+
+        # Open sector alarm login page and wait for it to load
+        driver.get('https://minasidor.sectoralarm.se/User/Login#!/')
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/main/div/div/div/div[1]/div/button")))
+
+        # Click login button
+        driver.find_element_by_xpath("/html/body/main/div/div/div/div[1]/div/button").click()
+
+        # Enter username and password and click submit
+        username = driver.find_element_by_name("userID")
+        password = driver.find_element_by_name("password")
+
+        username.send_keys(user)
+        password.send_keys(passwd)
+
+        driver.find_element_by_css_selector("#frmLogin > div > button").click()
+
+        # Wait until the temperature list arrow shows up on page and click it
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/main/div/div/div[3]/div[2]/ng-include[2]/div/div/div[2]/div/a/h2")))
+
+        driver.find_element_by_xpath("/html/body/main/div/div/div[3]/div[2]/ng-include[2]/div/div/div[2]/div/a/h2").click()
+
+        # Wait for temperature to load and read it
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "body > main > div > div > div.background-gray > div:nth-child(2) > "
+                                           "ng-include:nth-child(2) > div > div > div.status-list__main > "
+                                           "div.status-list__show.ng-scope > div > ul > li:nth-child(1) > "
+                                           "span.badge.green.notranslate.ng-binding.ng-scope")))
+        temp = driver.find_element_by_css_selector("body > main > div > div > div.background-gray > div:nth-child(2) > "
+                                           "ng-include:nth-child(2) > div > div > div.status-list__main > "
+                                           "div.status-list__show.ng-scope > div > ul > li:nth-child(1) > "
+                                           "span.badge.green.notranslate.ng-binding.ng-scope").text
+        try:
+            temp = int(temp[:2])
+        except:
+            temp = self.login_sector(user,passwd)
+        return temp
+
     def get_kitchen_temp(self):
         if platform == 'linux':
             file = 'home/pi/Python/passwd/sector.pickle'
@@ -122,13 +169,14 @@ class Daikin_Controller(object):
             s = pickle.load(f)
         mail = s['user']
         passwd = s['passwd']
-        number = s['nr']
-        sector = Session(mail, passwd, number)
-        device_list = sector.get_temperature()['temperatureComponentList']
-        firealarm_kitchen = device_list[0]
-        firealarm_upstairs = device_list[1]
-        ir_sensor_bedroom = device_list[2]
-        return int(firealarm_kitchen['temperature'])
+        #number = s['nr']
+
+        temp = self.login_sector(mail,passwd)
+
+        if temp:
+            return temp
+        else:
+            return 22
 
     def get_target_temp(self):
         outdoor_temp = self.yr_future_low_temp

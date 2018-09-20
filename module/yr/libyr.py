@@ -3,7 +3,7 @@
 import logging
 import json
 import xmltodict  # <~ the only external dependency
-from yr.utils import Connect, Location, API_Locationforecast, Language, YrException
+from module.yr.utils import Connect, Location, API_Locationforecast, Language, YrException
 
 
 class Yr:
