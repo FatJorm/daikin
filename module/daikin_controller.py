@@ -118,7 +118,11 @@ class Daikin_Controller(object):
         self.save_obj(frame,PANDA_FRAME)
 
     def login_sector(self, user, passwd):
-        driver = webdriver.Chrome('chromedriver')
+        if platform == 'linux':
+            driver = webdriver.Chrome('linux/chromedriver')
+        else:
+            driver = webdriver.Chrome('win32/chromedriver')
+
 
         # Open sector alarm login page and wait for it to load
         driver.get('https://minasidor.sectoralarm.se/User/Login#!/')
