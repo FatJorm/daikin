@@ -7,7 +7,6 @@ import json
 from datetime import datetime as dt
 from module.daikin_aircon import *
 from module.yr.libyr import Yr
-from module.python_sectoralarm_master.sectoralarm.session import Session
 import pickle
 from collections import deque
 from math import floor
@@ -161,7 +160,7 @@ class Daikin_Controller(object):
 
     def get_kitchen_temp(self):
         if platform == 'linux':
-            file = 'home/pi/Python/passwd/sector.pickle'
+            file = '/home/pi/Python/passwd/sector.pickle'
         else:
             file = r'C:\Users\Johan\Documents\Programming\Python\passwords\sector.pickle'
 
@@ -169,14 +168,11 @@ class Daikin_Controller(object):
             s = pickle.load(f)
         mail = s['user']
         passwd = s['passwd']
-        #number = s['nr']
+        
+        #temp = self.login_sector(mail,passwd)
 
-        temp = self.login_sector(mail,passwd)
+        return 22
 
-        if temp:
-            return temp
-        else:
-            return 22
 
     def get_target_temp(self):
         outdoor_temp = self.yr_future_low_temp
