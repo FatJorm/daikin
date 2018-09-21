@@ -182,7 +182,6 @@ class Daikin_Controller(object):
         else:
             return 22
 
-
     def get_target_temp(self):
         outdoor_temp = self.yr_future_low_temp
         if outdoor_temp < 0:
