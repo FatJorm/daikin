@@ -1,1 +1,4 @@
 log.txt
+.idea/
+module/__pycache__/
+module/obj/

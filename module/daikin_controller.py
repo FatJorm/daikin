@@ -118,9 +118,9 @@ class Daikin_Controller(object):
 
     def login_sector(self, user, passwd):
         if platform == 'linux':
-            driver = webdriver.Chrome('linux/chromedriver')
+            driver = webdriver.Chrome('chromedriver/linux/chromedriver')
         else:
-            driver = webdriver.Chrome('win32/chromedriver')
+            driver = webdriver.Chrome('chromedriver/win32/chromedriver')
 
 
         # Open sector alarm login page and wait for it to load
@@ -164,6 +164,8 @@ class Daikin_Controller(object):
 
     def get_kitchen_temp(self):
         if platform == 'linux':
+            return 22
+        if platform == 'linux':
             file = '/home/pi/Python/passwd/sector.pickle'
         else:
             file = r'C:\Users\Johan\Documents\Programming\Python\passwords\sector.pickle'
@@ -173,9 +175,12 @@ class Daikin_Controller(object):
         mail = s['user']
         passwd = s['passwd']
         
-        #temp = self.login_sector(mail,passwd)
+        temp = self.login_sector(mail,passwd)
 
-        return 22
+        if temp:
+            return temp
+        else:
+            return 22
 
 
     def get_target_temp(self):
