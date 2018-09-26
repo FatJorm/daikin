@@ -9,7 +9,6 @@ from module.daikin_aircon import *
 from module.yr.libyr import Yr
 import pickle
 from collections import deque
-from math import floor
 import pandas as pd
 from sys import platform
 from selenium import webdriver
@@ -17,7 +16,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import requests, urllib
+import requests
 
 os.chdir(sys.path[0])
 
