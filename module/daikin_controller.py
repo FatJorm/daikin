@@ -17,6 +17,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import requests, urllib
 
 os.chdir(sys.path[0])
 
@@ -174,13 +175,18 @@ class Daikin_Controller(object):
             s = pickle.load(f)
         mail = s['user']
         passwd = s['passwd']
-        
-        temp = self.login_sector(mail,passwd)
+        number = s['nr']
 
-        if temp:
-            return temp
-        else:
-            return 22
+        payload = {'userID': mail, 'password': passwd}
+        login_url = 'https://minasidor.sectoralarm.se/User/Login#!/'
+        temp_url = 'https://minasidor.sectoralarm.se/Panel/GetTempratures/{}'.format(number)
+
+        with requests.Session() as s:
+            response = s.post(login_url, data=payload)
+            temp_data = json.JSONDecoder().decode(s.get(temp_url).text)
+            temp = temp_data[0]['Temprature']
+
+        return int(temp)
 
     def get_target_temp(self):
         outdoor_temp = self.yr_future_low_temp
