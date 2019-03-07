@@ -52,6 +52,11 @@ class Daikin_Controller(object):
         aircon_mode = self.control_info['mode']
         if aircon_mode != 3:
             self.aircon.set_control_info({'mode':3})
+
+    def set_mode_fan(self, mode):
+        fan_mode = self.control_info['f_rate']
+        if fan_mode != mode:
+            self.aircon.set_control_info({'f_rate' : mode})      
     
     def set_temp(self):
         if not (self.target_temp == self.daikin_target_indoor_temp):
@@ -164,8 +169,6 @@ class Daikin_Controller(object):
 
     def get_kitchen_temp(self):
         if platform == 'linux':
-            return 22
-        if platform == 'linux':
             file = '/home/pi/Python/passwd/sector.pickle'
         else:
             file = r'C:\Users\Johan\Documents\Programming\Python\passwords\sector.pickle'
@@ -184,35 +187,44 @@ class Daikin_Controller(object):
             response = s.post(login_url, data=payload)
             temp_data = json.JSONDecoder().decode(s.get(temp_url).text)
             temp = temp_data[0]['Temprature']
-
         return int(temp)
 
     def get_target_temp(self):
         outdoor_temp = self.yr_future_low_temp
+        #outdoor_temp = self.daikin_outdoor_temp
+        if outdoor_temp < 2:
+            self.set_mode_fan('7')
+        else:
+            self.set_mode_fan('A')
+
         if outdoor_temp < 0:
-            target = 26.0
-            self.number_of_hours = 6
-        elif outdoor_temp < 2:
             target = 24.0
+            self.number_of_hours = 6
+        elif outdoor_temp < 1:
+            target = 23.0
             self.number_of_hours = 6
         elif outdoor_temp < 4:
             target = 22.0
-            self.number_of_hours = 6
+            self.number_of_hours = 4
         elif outdoor_temp < 10:
             target = 21.0
-            self.number_of_hours = 4
-        elif outdoor_temp < 15:
-            target = 20.0
             self.number_of_hours = 2
+        elif outdoor_temp < 16:
+            target = 20.0
+            self.number_of_hours = 1 
         else:
             target = 18.0
             self.number_of_hours = 1
         return self.apply_kitchen_sensor_value(target)
-
+        
     def apply_kitchen_sensor_value(self, target):
-        if self.kitchen_temp > 24 and self.yr_outdoor_temp > 24:
-            self.set_mode_cooling()
-            return(22.0)
+        if self.kitchen_temp > 23:
+            if self.yr_outdoor_temp > 18:
+                self.set_mode_cooling()
+                return(23.0)
+            else:
+                self.set_mode_heating()
+                return(18.0)
         else:
             self.set_mode_heating()
             if (target < self.daikin_target_indoor_temp) and (self.kitchen_temp > 22):
